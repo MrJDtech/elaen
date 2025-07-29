@@ -106,13 +106,28 @@ export function Dashboard() {
     await new Promise((resolve) => setTimeout(resolve, 300)) // Simulate network delay
 
     const localCourses = JSON.parse(localStorage.getItem("local-courses") || "[]")
-    // Filter courses by the current user's ID if available, otherwise show all initial mock courses
+    const savedCourses = JSON.parse(localStorage.getItem("courses") || "[]")
+    
+    // Combine and deduplicate courses from both storage locations
+    const allCourses = [...initialMockCourses, ...localCourses, ...savedCourses]
+    const uniqueCourses = allCourses.reduce((acc: Course[], current: Course) => {
+      const existing = acc.find(course => course.id === current.id)
+      if (!existing) {
+        acc.push(current)
+      } else {
+        // Keep the most recent version (with higher progress or completed status)
+        if (current.completed || current.progress > existing.progress) {
+          const index = acc.findIndex(course => course.id === current.id)
+          acc[index] = current
+        }
+      }
+      return acc
+    }, [])
+    
+    // Filter courses by the current user's ID if available
     const userCourses = user
-      ? [
-          ...initialMockCourses.filter((c) => c.user_id === user.id),
-          ...localCourses.filter((c: Course) => c.user_id === user.id),
-        ]
-      : initialMockCourses // If no user, show all initial mock courses
+      ? uniqueCourses.filter((c: Course) => c.user_id === user.id)
+      : uniqueCourses
 
     setCourses(userCourses)
     setLoading(false)
@@ -174,12 +189,12 @@ export function Dashboard() {
               <h1 className="text-3xl font-bold">Welcome back, {user?.name || "Guest"}!</h1>
               
         </div>
-        <p className="text-muted-foreground">
+        <div className="text-muted-foreground">
           Continue your learning journey
           <Badge variant="outline" className="ml-2">
             Local Storage Mode
           </Badge>
-        </p>
+        </div>
       </div>
 
       <Card className="border-blue-200 bg-blue-50">

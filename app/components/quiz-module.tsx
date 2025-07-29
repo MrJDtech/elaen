@@ -193,6 +193,17 @@ export function QuizModule({ course }: QuizModuleProps) {
               <Button onClick={() => {
                 // Mark course as completed when quiz is passed
                 if (typeof window !== 'undefined') {
+                  // Update both local courses and the stored courses
+                  const localCourses = localStorage.getItem('local-courses') || '[]'
+                  const localCoursesData = JSON.parse(localCourses)
+                  
+                  // Update the course in local storage
+                  const updatedLocalCourses = localCoursesData.map((c: any) => 
+                    c.id === course.id ? { ...c, completed: true, progress: 100 } : c
+                  )
+                  localStorage.setItem('local-courses', JSON.stringify(updatedLocalCourses))
+                  
+                  // Also check if course exists in regular courses storage
                   const savedCourses = localStorage.getItem('courses')
                   if (savedCourses) {
                     const courses = JSON.parse(savedCourses)
@@ -200,8 +211,10 @@ export function QuizModule({ course }: QuizModuleProps) {
                       c.id === course.id ? { ...c, completed: true, progress: 100 } : c
                     )
                     localStorage.setItem('courses', JSON.stringify(updatedCourses))
-                    window.location.reload() // Refresh to update the UI
                   }
+                  
+                  // Reload the page to update the UI
+                  window.location.reload()
                 }
               }}>
                 Complete Course & Get Certificate

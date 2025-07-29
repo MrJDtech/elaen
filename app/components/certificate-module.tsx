@@ -313,16 +313,20 @@ export function CertificateModule({ course }: CertificateModuleProps) {
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
     
-    // Also show success message
-    alert(`Certificate downloaded successfully! 
-    
-The HTML file will open in your browser and prompt you to print/save as PDF.
-    
-To save as PDF:
-1. Open the downloaded file in your browser
-2. Press Ctrl+P (or Cmd+P on Mac) 
+    // Show success message with better instructions
+    setTimeout(() => {
+      alert(`🎉 Certificate downloaded successfully!
+
+The HTML file has been saved to your Downloads folder.
+
+To convert to PDF:
+1. Open the downloaded HTML file in your browser
+2. It will automatically open the print dialog
 3. Choose "Save as PDF" as destination
-4. Click Save`)
+4. Click Save
+
+Your certificate is now ready to share or print!`)
+    }, 500)
   }
 
   const handleShare = () => {
@@ -338,6 +342,11 @@ To save as PDF:
           <h3 className="text-xl font-semibold mb-2">Certificate Not Available</h3>
           <p className="text-muted-foreground mb-4">Complete the course and pass the quiz to earn your certificate.</p>
           <Badge variant="outline">Course Progress: {course.progress}%</Badge>
+          <div className="mt-4">
+            <p className="text-sm text-muted-foreground">
+              Tip: You need to score at least 70% on the quiz to complete the course and unlock your certificate.
+            </p>
+          </div>
         </CardContent>
       </Card>
     )
