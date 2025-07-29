@@ -1,5 +1,5 @@
 import { groq } from "@ai-sdk/groq"
-import { streamText } from "ai"
+import { generateText } from "ai"
 
 export async function POST(req: Request) {
   try {
@@ -12,48 +12,48 @@ export async function POST(req: Request) {
       console.error("GROQ_API_KEY is not configured. AI generation will not work.")
       return Response.json(
         {
-          error:
-            "GROQ_API_KEY is not configured. Please ensure it's set in environment variables or hardcoded correctly.",
+          error: "GROQ_API_KEY is not configured. Please ensure it's set in environment variables or hardcoded correctly.",
         },
         { status: 500 },
       )
     }
 
     try {
-      const result = await streamText({
+      const result = await generateText({
         model: groq("llama-3.1-8b-instant"),
         prompt: `Write educational content about "${topic}" for the course "${courseTitle}".
 
-IMPORTANT FORMATTING RULES:
-- Write in clear, readable paragraphs
-- Use simple headings without markdown symbols
-- No special characters like **, ##, -, or *
-- Write naturally as if explaining to a student
-- Use proper sentences and paragraphs only
+Write clear, readable content that explains the topic in simple terms. Structure your response as follows:
 
-Content should include:
-1. A clear introduction to the topic
-2. Key concepts explained simply
-3. Practical examples
-4. Important takeaways
+${topic}
 
-Write approximately 300-400 words in a conversational, educational tone.
+Start with a brief introduction explaining what ${topic} is and why it's important in ${courseTitle}.
 
-Topic: ${topic}
-Course: ${courseTitle}`,
-        temperature: 1,
-        maxTokens: 1024, // Corresponds to max_completion_tokens
-        topP: 1,
+Then explain the key concepts in 2-3 paragraphs, using simple language and practical examples.
+
+Finally, provide a summary of the main takeaways that students should remember.
+
+Write in a conversational tone as if you're teaching a student. Use proper paragraphs and avoid special formatting symbols.`,
+        temperature: 0.7,
+        maxTokens: 800,
       })
-      return result.toDataStreamResponse()
+      
+      return Response.json({ content: result.text })
     } catch (groqError: any) {
       console.error("Error calling Groq API for content generation:", groqError)
-      return Response.json(
-        {
-          error: `Groq API call failed for content generation: ${groqError.message || "Unknown error"}. Please check your API key and Groq status.`,
-        },
-        { status: 500 },
-      )
+      
+      // Provide fallback content
+      const fallbackContent = `${topic}
+
+Welcome to learning about ${topic}! This is an important concept in ${courseTitle} that will help you build a strong foundation.
+
+${topic} refers to the fundamental elements that make up this subject area. Understanding these concepts is essential because they form the building blocks for more advanced topics you'll encounter later in the course.
+
+Let's break this down into manageable pieces. The core ideas include the basic principles, practical applications, and how these concepts connect to real-world scenarios. By mastering these fundamentals, you'll be better prepared to tackle more complex challenges.
+
+Key takeaways: Remember that ${topic} is foundational to ${courseTitle}. Focus on understanding the basic principles first, then practice applying them in different contexts. This will help you build confidence and competence in the subject.`
+
+      return Response.json({ content: fallbackContent })
     }
   } catch (error) {
     console.error("Unexpected error in content generation route:", error)

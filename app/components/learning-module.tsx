@@ -50,33 +50,25 @@ export function LearningModule({ course }: LearningModuleProps) {
       })
 
       if (!response.ok) {
-        // If the response is not OK, it might still be a streamed error or a regular JSON error
-        const errorText = await response.text() // Read as text first
+        const errorText = await response.text()
         let errorMessage = `Failed to generate content: ${response.statusText}`
         try {
-          const errorData = JSON.parse(errorText) // Try parsing as JSON for specific error messages
+          const errorData = JSON.parse(errorText)
           errorMessage = errorData.error || errorMessage
         } catch (parseError) {
-          // If not JSON, use the raw text
           errorMessage = errorText || errorMessage
         }
         throw new Error(errorMessage)
       }
 
-      // --- MODIFIED TO HANDLE STREAMING RESPONSE ---
-      const reader = response.body?.getReader()
-      if (!reader) {
-        throw new Error("Failed to get readable stream from response.")
+      const data = await response.json()
+      if (data.content) {
+        setContent(data.content)
+      } else if (data.error) {
+        throw new Error(data.error)
+      } else {
+        throw new Error("Invalid response format")
       }
-
-      let receivedContent = ""
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        receivedContent += new TextDecoder().decode(value)
-        setContent(receivedContent) // Update content as chunks arrive
-      }
-      // --- END MODIFICATION ---
     } catch (err: any) {
       setError(err.message || "Failed to generate content. Please try again.")
       console.error("Error generating content:", err)
