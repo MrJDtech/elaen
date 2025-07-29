@@ -182,41 +182,40 @@ export function LearningModule({ course }: LearningModuleProps) {
             ) : (
               
               <div className="prose prose-sm max-w-none">
-                {content.split('\n').map((paragraph, index) => {
+                {content.split('\n\n').map((paragraph, index) => {
                   const trimmed = paragraph.trim();
                   if (!trimmed) return null;
 
-                  // Handle headings
-                  if (trimmed.startsWith('# ')) {
-                    return <h1 key={index} className="text-2xl font-bold text-gray-900 mb-4">{trimmed.substring(2)}</h1>;
-                  }
-                  if (trimmed.startsWith('## ')) {
-                    return <h2 key={index} className="text-xl font-semibold text-gray-800 mb-3">{trimmed.substring(3)}</h2>;
-                  }
-                  if (trimmed.startsWith('### ')) {
-                    return <h3 key={index} className="text-lg font-medium text-gray-700 mb-2">{trimmed.substring(4)}</h3>;
-                  }
+                  // Clean up any remaining markdown symbols
+                  let cleanText = trimmed
+                    .replace(/^#+\s*/g, '') // Remove heading symbols
+                    .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold symbols
+                    .replace(/^\d+\.\s*/g, '') // Remove numbered list markers
+                    .replace(/^[-*]\s*/g, '') // Remove bullet markers
+                    .replace(/^>\s*/g, '') // Remove quote markers
+                    .trim();
 
-                  // Handle numbered lists
-                  if (/^\d+\./.test(trimmed)) {
-                    return <p key={index} className="text-gray-700 leading-relaxed mb-2 ml-4">{trimmed}</p>;
-                  }
+                  // Skip empty content after cleaning
+                  if (!cleanText) return null;
 
-                  // Handle bullet points
-                  if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
-                    return <p key={index} className="text-gray-700 leading-relaxed mb-2 ml-4">• {trimmed.substring(2)}</p>;
-                  }
+                  // Detect if it's likely a heading (shorter text, often at start)
+                  const isHeading = cleanText.length < 80 && 
+                    (index === 0 || cleanText.includes('Building Blocks') || 
+                     cleanText.includes('Introduction') || cleanText.includes('Concepts'));
 
-                  // Handle bold text
-                  const boldFormatted = trimmed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                  if (isHeading) {
+                    return (
+                      <h2 key={index} className="text-xl font-semibold text-gray-800 mb-4 mt-6">
+                        {cleanText}
+                      </h2>
+                    );
+                  }
 
                   // Regular paragraphs
                   return (
-                    <p 
-                      key={index} 
-                      className="text-gray-700 leading-relaxed mb-3"
-                      dangerouslySetInnerHTML={{ __html: boldFormatted }}
-                    />
+                    <p key={index} className="text-gray-700 leading-relaxed mb-4 text-justify">
+                      {cleanText}
+                    </p>
                   );
                 }).filter(Boolean)}
               </div>

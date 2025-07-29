@@ -21,17 +21,23 @@ export async function POST(req: Request) {
 
     try {
       const result = await streamText({
-        model: groq("gemma2-9b-it"), // Changed to gemma2-9b-it
-        prompt: `Create comprehensive educational content for the topic "${topic}" as part of the course "${courseTitle}".
+        model: groq("llama-3.1-8b-instant"),
+        prompt: `Write educational content about "${topic}" for the course "${courseTitle}".
 
-Please provide:
+IMPORTANT FORMATTING RULES:
+- Write in clear, readable paragraphs
+- Use simple headings without markdown symbols
+- No special characters like **, ##, -, or *
+- Write naturally as if explaining to a student
+- Use proper sentences and paragraphs only
+
+Content should include:
 1. A clear introduction to the topic
-2. Key concepts and definitions
+2. Key concepts explained simply
 3. Practical examples
-4. Important points to remember
-5. How this topic relates to the broader course
+4. Important takeaways
 
-Make the content engaging, educational, and suitable for learners. Use clear explanations and provide concrete examples where possible. The content should be approximately 300-500 words.
+Write approximately 300-400 words in a conversational, educational tone.
 
 Topic: ${topic}
 Course: ${courseTitle}`,
