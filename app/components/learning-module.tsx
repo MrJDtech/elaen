@@ -180,10 +180,45 @@ export function LearningModule({ course }: LearningModuleProps) {
                 <Button onClick={() => generateContent(currentTopic)}>Try Again</Button>
               </div>
             ) : (
+              
               <div className="prose prose-sm max-w-none">
-                <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                  {content || "Content will be generated..."}
-                </div>
+                {content.split('\n').map((paragraph, index) => {
+                  const trimmed = paragraph.trim();
+                  if (!trimmed) return null;
+
+                  // Handle headings
+                  if (trimmed.startsWith('# ')) {
+                    return <h1 key={index} className="text-2xl font-bold text-gray-900 mb-4">{trimmed.substring(2)}</h1>;
+                  }
+                  if (trimmed.startsWith('## ')) {
+                    return <h2 key={index} className="text-xl font-semibold text-gray-800 mb-3">{trimmed.substring(3)}</h2>;
+                  }
+                  if (trimmed.startsWith('### ')) {
+                    return <h3 key={index} className="text-lg font-medium text-gray-700 mb-2">{trimmed.substring(4)}</h3>;
+                  }
+
+                  // Handle numbered lists
+                  if (/^\d+\./.test(trimmed)) {
+                    return <p key={index} className="text-gray-700 leading-relaxed mb-2 ml-4">{trimmed}</p>;
+                  }
+
+                  // Handle bullet points
+                  if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+                    return <p key={index} className="text-gray-700 leading-relaxed mb-2 ml-4">• {trimmed.substring(2)}</p>;
+                  }
+
+                  // Handle bold text
+                  const boldFormatted = trimmed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+                  // Regular paragraphs
+                  return (
+                    <p 
+                      key={index} 
+                      className="text-gray-700 leading-relaxed mb-3"
+                      dangerouslySetInnerHTML={{ __html: boldFormatted }}
+                    />
+                  );
+                }).filter(Boolean)}
               </div>
             )}
 
