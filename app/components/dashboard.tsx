@@ -169,7 +169,7 @@ export function Dashboard() {
             <BookOpen className="h-4 w-4" />
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-semibold">VLearn</span>
+            <span className="truncate font-semibold">V-Learn</span>
             <span className="truncate text-xs text-muted-foreground">
               Local Storage Mode
             </span>
@@ -202,10 +202,20 @@ export function Dashboard() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={signOut}>
-              <User className="h-4 w-4" />
-              <span>{user?.name || "Guest"}</span>
-            </SidebarMenuButton>
+            <div className="flex items-center justify-between p-2">
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                <span className="text-sm">{user?.name || "Guest"}</span>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={signOut}
+                className="text-xs"
+              >
+                Sign Out
+              </Button>
+            </div>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
@@ -220,11 +230,11 @@ export function Dashboard() {
             Welcome back, {user?.name || "Guest"}!
           </h1>
         </div>
-        <div className="text-muted-foreground">
+        <p className="text-muted-foreground">
           Continue your learning journey
-        </div>
-        <div>
-          <Badge variant="outline" className="ml-2">
+        </p>
+        <div className="mt-2">
+          <Badge variant="outline">
             Local Storage Mode
           </Badge>
         </div>
@@ -642,8 +652,22 @@ export function Dashboard() {
       <div className="flex min-h-screen w-full">
         <AppSidebar />
         <main className="flex-1 p-6">
-          <div className="mb-6">
+          <div className="mb-6 flex items-center justify-between">
             <SidebarTrigger />
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-muted-foreground">
+                Welcome, {user?.name || "Guest"}
+              </span>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={signOut}
+                className="flex items-center gap-2"
+              >
+                <User className="h-4 w-4" />
+                Sign Out
+              </Button>
+            </div>
           </div>
           {renderActiveView()}
         </main>
