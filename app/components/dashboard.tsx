@@ -194,9 +194,11 @@ export function Dashboard() {
         <div className="text-muted-foreground">
           Continue your learning journey
         </div>
-        <Badge variant="outline" className="ml-2">
-          Local Storage Mode
-        </Badge>
+        <div>
+          <Badge variant="outline" className="ml-2">
+            Local Storage Mode
+          </Badge>
+        </div>
       </div>
 
       <Card className="border-blue-200 bg-blue-50">

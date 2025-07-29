@@ -66,7 +66,7 @@ User prompt: ${prompt}`,
 
     // Clean the response text to extract valid JSON
     let cleanText = text.trim()
-    
+
     // Remove code block markers if present
     if (cleanText.startsWith('```json')) {
       cleanText = cleanText.replace(/^```json\s*/, '').replace(/\s*```$/, '')
@@ -74,14 +74,17 @@ User prompt: ${prompt}`,
     if (cleanText.startsWith('```')) {
       cleanText = cleanText.replace(/^```\s*/, '').replace(/\s*```$/, '')
     }
-    
+
     // Try to find JSON object in the response
     const jsonStart = cleanText.indexOf('{')
     const jsonEnd = cleanText.lastIndexOf('}')
-    
+
     if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
       cleanText = cleanText.substring(jsonStart, jsonEnd + 1)
     }
+
+    // Remove any emoji or special characters that might break JSON parsing
+    cleanText = cleanText.replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '"icon"')
 
     const courseData = JSON.parse(cleanText)
 
