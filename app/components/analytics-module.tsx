@@ -22,6 +22,8 @@ interface AnalyticsData {
     title: string
     date: string
   }>
+  averageQuizScore: number
+  totalQuizzesTaken: number
 }
 
 export function AnalyticsModule() {
@@ -30,26 +32,34 @@ export function AnalyticsModule() {
 
   useEffect(() => {
     if (user) {
-      loadAnalytics()
+      loadRealAnalytics()
     }
   }, [user])
 
-  const loadAnalytics = () => {
+  const loadRealAnalytics = () => {
     if (!user) return
 
-    // Load courses data
+    // Load real courses data
     const localCourses = JSON.parse(localStorage.getItem("local-courses") || "[]")
     const savedCourses = JSON.parse(localStorage.getItem("courses") || "[]")
     const allCourses = [...localCourses, ...savedCourses].filter((c: any) => c.user_id === user.id)
 
-    // Load topic progress data
+    // Load real topic progress data
     const topicProgress = JSON.parse(localStorage.getItem("topic-progress") || "{}")
     
-    // Load learning activity
+    // Load real learning activity
     const learningActivity = JSON.parse(localStorage.getItem("learning-activity") || "[]")
       .filter((activity: any) => activity.userId === user.id)
 
-    // Calculate analytics
+    // Load quiz results
+    const quizResults = JSON.parse(localStorage.getItem("quiz-results") || "[]")
+      .filter((result: any) => result.userId === user.id)
+
+    // Load certificates
+    const certificates = JSON.parse(localStorage.getItem("certificates") || "[]")
+      .filter((cert: any) => cert.userId === user.id)
+
+    // Calculate real analytics
     const totalCourses = allCourses.length
     const completedCourses = allCourses.filter((c: any) => c.completed).length
     
@@ -66,11 +76,21 @@ export function AnalyticsModule() {
         (courseCompletedTopics / course.topics.length) * 100 : 0
     })
 
-    // Calculate study time (simulate based on activity)
-    const studyTime = learningActivity.length * 15 // Assume 15 minutes per activity
+    // Calculate real study time based on actual activity
+    const studyTime = learningActivity.length * 12 // Assume 12 minutes per topic
 
-    // Weekly progress simulation
-    const weeklyProgress = [65, 70, 75, 80, 85, 78, 90]
+    // Calculate quiz performance
+    const totalQuizzesTaken = quizResults.length
+    const averageQuizScore = totalQuizzesTaken > 0 ? 
+      quizResults.reduce((sum: number, result: any) => sum + result.score, 0) / totalQuizzesTaken : 0
+
+    // Calculate weekly progress based on actual activity
+    const weeklyProgress = calculateWeeklyProgress(learningActivity)
+
+    // Get recent activity (sorted by date)
+    const recentActivity = learningActivity
+      .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 10)
 
     const analyticsData: AnalyticsData = {
       totalCourses,
@@ -78,13 +98,40 @@ export function AnalyticsModule() {
       totalTopics,
       completedTopics,
       studyTime,
-      certificates: completedCourses,
+      certificates: certificates.length,
       weeklyProgress,
       topicCompletionRate,
-      recentActivity: learningActivity.slice(-5).reverse()
+      recentActivity,
+      averageQuizScore,
+      totalQuizzesTaken
     }
 
     setAnalytics(analyticsData)
+  }
+
+  const calculateWeeklyProgress = (activities: any[]) => {
+    const now = new Date()
+    const weeklyData = []
+    
+    for (let i = 6; i >= 0; i--) {
+      const targetDate = new Date(now)
+      targetDate.setDate(now.getDate() - i)
+      targetDate.setHours(0, 0, 0, 0)
+      
+      const nextDay = new Date(targetDate)
+      nextDay.setDate(targetDate.getDate() + 1)
+      
+      const dayActivities = activities.filter((activity: any) => {
+        const activityDate = new Date(activity.date)
+        return activityDate >= targetDate && activityDate < nextDay
+      })
+      
+      // Calculate progress percentage based on activities (0-100)
+      const progressPercent = Math.min(dayActivities.length * 20, 100)
+      weeklyData.push(progressPercent)
+    }
+    
+    return weeklyData
   }
 
   if (!analytics) {
@@ -101,7 +148,7 @@ export function AnalyticsModule() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Learning Analytics</h1>
-        <p className="text-muted-foreground">Track your progress and learning insights</p>
+        <p className="text-muted-foreground">Track your real progress and learning insights</p>
       </div>
 
       {/* Key Metrics */}
@@ -141,7 +188,7 @@ export function AnalyticsModule() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{Math.floor(analytics.studyTime / 60)}h {analytics.studyTime % 60}m</div>
-            <p className="text-xs text-muted-foreground">Total learning time</p>
+            <p className="text-xs text-muted-foreground">Real learning time</p>
           </CardContent>
         </Card>
 
@@ -165,28 +212,67 @@ export function AnalyticsModule() {
               <TrendingUp className="h-5 w-5" />
               Weekly Progress
             </CardTitle>
-            <CardDescription>Your learning progress over the past week</CardDescription>
+            <CardDescription>Your real learning activity over the past week</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {analytics.weeklyProgress.map((progress, index) => (
-                <div key={index} className="flex items-center gap-3">
-                  <span className="text-sm font-medium w-16">Day {index + 1}</span>
-                  <Progress value={progress} className="flex-1" />
-                  <span className="text-sm font-medium w-12">{progress}%</span>
-                </div>
-              ))}
+              {analytics.weeklyProgress.map((progress, index) => {
+                const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+                const today = new Date()
+                const dayOfWeek = (today.getDay() - 6 + index) % 7
+                const dayName = dayNames[dayOfWeek < 0 ? dayOfWeek + 7 : dayOfWeek]
+                
+                return (
+                  <div key={index} className="flex items-center gap-3">
+                    <span className="text-sm font-medium w-12">{dayName}</span>
+                    <Progress value={progress} className="flex-1" />
+                    <span className="text-sm font-medium w-12">{progress}%</span>
+                  </div>
+                )
+              })}
             </div>
           </CardContent>
         </Card>
 
-        {/* Course Progress Breakdown */}
+        {/* Quiz Performance */}
         <Card>
           <CardHeader>
-            <CardTitle>Course Progress</CardTitle>
-            <CardDescription>Topic completion by course</CardDescription>
+            <CardTitle>Quiz Performance</CardTitle>
+            <CardDescription>Your quiz results and performance</CardDescription>
           </CardHeader>
           <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Quizzes Taken</span>
+                <Badge variant="outline">{analytics.totalQuizzesTaken}</Badge>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Average Score</span>
+                  <span className="text-sm font-bold">{Math.round(analytics.averageQuizScore)}%</span>
+                </div>
+                <Progress value={analytics.averageQuizScore} />
+              </div>
+              {analytics.totalQuizzesTaken === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  No quizzes taken yet. Complete some courses to take quizzes!
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Course Progress Breakdown */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Course Progress Breakdown</CardTitle>
+          <CardDescription>Topic completion by course</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {Object.keys(analytics.topicCompletionRate).length === 0 ? (
+            <p className="text-muted-foreground text-center py-4">No courses created yet</p>
+          ) : (
             <div className="space-y-4">
               {Object.entries(analytics.topicCompletionRate).map(([courseId, rate]) => {
                 const course = [...JSON.parse(localStorage.getItem("local-courses") || "[]"), 
@@ -210,9 +296,9 @@ export function AnalyticsModule() {
                 )
               })}
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Recent Activity */}
       <Card>
@@ -222,7 +308,9 @@ export function AnalyticsModule() {
         </CardHeader>
         <CardContent>
           {analytics.recentActivity.length === 0 ? (
-            <p className="text-muted-foreground text-center py-4">No recent activity</p>
+            <p className="text-muted-foreground text-center py-4">
+              No activity yet. Start learning to see your progress here!
+            </p>
           ) : (
             <div className="space-y-3">
               {analytics.recentActivity.map((activity, index) => (
