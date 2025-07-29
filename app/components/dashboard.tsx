@@ -144,7 +144,7 @@ export function Dashboard() {
             <BookOpen className="h-4 w-4" />
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-semibold">EduLearn Pro</span>
+            <span className="truncate font-semibold">V-Learn</span>
             <span className="truncate text-xs text-muted-foreground">Local Storage Mode</span>
           </div>
         </div>

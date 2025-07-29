@@ -61,7 +61,7 @@ export function AuthForm() {
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <BookOpen className="h-6 w-6" />
             </div>
-            <h1 className="text-2xl font-bold">EduLearn Pro</h1>
+            <h1 className="text-2xl font-bold">V-Learn</h1>
           </div>
           <CardTitle>Welcome to Your Learning Journey</CardTitle>
           <CardDescription>Sign in to access your courses and connect with friends</CardDescription>
