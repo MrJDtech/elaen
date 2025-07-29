@@ -1,57 +1,63 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { BookOpen, Mail, Lock, User } from "lucide-react"
-import { useAuth } from "./auth-provider"
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BookOpen, Mail, Lock, User } from "lucide-react";
+import { useAuth } from "./auth-provider";
 
 export function AuthForm() {
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
-  const { signIn, signUp } = useAuth()
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const { signIn, signUp } = useAuth();
 
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
-    const formData = new FormData(e.currentTarget)
-    const email = formData.get("email") as string
-    const password = formData.get("password") as string
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
 
     try {
-      await signIn(email, password)
+      await signIn(email, password);
     } catch (err: any) {
-      setError(err.message)
+      setError(err.message);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
-    const formData = new FormData(e.currentTarget)
-    const email = formData.get("email") as string
-    const password = formData.get("password") as string
-    const name = formData.get("name") as string
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const name = formData.get("name") as string;
 
     try {
-      await signUp(email, password, name)
+      await signUp(email, password, name);
     } catch (err: any) {
-      setError(err.message)
+      setError(err.message);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
@@ -61,10 +67,12 @@ export function AuthForm() {
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <BookOpen className="h-6 w-6" />
             </div>
-            <h1 className="text-2xl font-bold">V-Learn</h1>
+            <h1 className="text-2xl font-bold">VLearn</h1>
           </div>
           <CardTitle>Welcome to Your Learning Journey</CardTitle>
-          <CardDescription>Sign in to access your courses and connect with friends</CardDescription>
+          <CardDescription>
+            Sign in to access your courses and connect with friends
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">
@@ -105,7 +113,8 @@ export function AuthForm() {
                 </div>
                 {error && <p className="text-sm text-red-500">{error}</p>}
                 <div className="text-xs text-muted-foreground bg-blue-50 p-3 rounded">
-                  <strong>Demo Mode:</strong> Use any password for existing accounts, or sign up to create a new account.
+                  <strong>Demo Mode:</strong> Use any password for existing
+                  accounts, or sign up to create a new account.
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Signing in..." : "Sign In"}
@@ -167,5 +176,5 @@ export function AuthForm() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
