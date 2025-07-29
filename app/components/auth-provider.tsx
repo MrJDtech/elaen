@@ -52,44 +52,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     setLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 500)) // Simulate network delay
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 500)) // Simulate network delay
 
-    // Check if user exists in stored users
-    const storedUsers = JSON.parse(localStorage.getItem("all-users") || "[]")
-    const existingUser = storedUsers.find((u: User) => u.email === email)
+      // Check if user exists in stored users
+      const storedUsers = JSON.parse(localStorage.getItem("all-users") || "[]")
+      const existingUser = storedUsers.find((u: User) => u.email === email)
 
-    if (existingUser) {
-      // Simple password check (in real app, use proper authentication)
-      if (password === "password" || email === "test@example.com") {
+      if (existingUser) {
+        // For demo purposes, accept any password for existing users
         localStorage.setItem("local-user", JSON.stringify(existingUser))
         setUser(existingUser)
       } else {
-        throw new Error("Invalid credentials")
+        throw new Error("User not found. Please sign up first.")
       }
-    } else {
-      // Create new user profile
-      const newUser: User = {
-        id: `user-${Date.now()}`,
-        email: email,
-        name: email.split("@")[0] || "User",
-        profile: {
-          bio: "",
-          joinDate: new Date().toISOString(),
-          coursesCompleted: 0,
-          certificatesEarned: [],
-          friends: [],
-          skillLevel: "Beginner",
-          preferredSubjects: []
-        }
-      }
-      
-      // Store in users collection
-      const updatedUsers = [...storedUsers, newUser]
-      localStorage.setItem("all-users", JSON.stringify(updatedUsers))
-      localStorage.setItem("local-user", JSON.stringify(newUser))
-      setUser(newUser)
+    } catch (error) {
+      throw error
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   const signUp = async (email: string, password: string, name: string) => {

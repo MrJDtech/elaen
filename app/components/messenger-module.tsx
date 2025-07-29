@@ -103,8 +103,8 @@ export function MessengerModule() {
       localStorage.setItem("all-users", JSON.stringify(allUsers))
     }
     
-    loadFriends()
-    loadAllUsers()
+    // Trigger a re-render by updating the user state
+    window.location.reload()
   }
 
   const loadMessages = () => {

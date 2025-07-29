@@ -104,6 +104,9 @@ export function AuthForm() {
                   </div>
                 </div>
                 {error && <p className="text-sm text-red-500">{error}</p>}
+                <div className="text-xs text-muted-foreground bg-blue-50 p-3 rounded">
+                  <strong>Demo Mode:</strong> Use any password for existing accounts, or sign up to create a new account.
+                </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Signing in..." : "Sign In"}
                 </Button>
