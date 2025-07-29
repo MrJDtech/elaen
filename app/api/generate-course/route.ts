@@ -64,11 +64,31 @@ User prompt: ${prompt}`,
       return Response.json({ course: fallbackCourse })
     }
 
-    const courseData = JSON.parse(text)
+    // Clean the response text to extract valid JSON
+    let cleanText = text.trim()
+    
+    // Remove code block markers if present
+    if (cleanText.startsWith('```json')) {
+      cleanText = cleanText.replace(/^```json\s*/, '').replace(/\s*```$/, '')
+    }
+    if (cleanText.startsWith('```')) {
+      cleanText = cleanText.replace(/^```\s*/, '').replace(/\s*```$/, '')
+    }
+    
+    // Try to find JSON object in the response
+    const jsonStart = cleanText.indexOf('{')
+    const jsonEnd = cleanText.lastIndexOf('}')
+    
+    if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+      cleanText = cleanText.substring(jsonStart, jsonEnd + 1)
+    }
+
+    const courseData = JSON.parse(cleanText)
 
     return Response.json({ course: courseData })
   } catch (error) {
     console.error("Unexpected error in course generation route:", error)
+    const { prompt } = await req.json().catch(() => ({ prompt: "Unknown" }))
     const fallbackCourse = {
       title: `An unexpected error occurred: ${prompt.slice(0, 50)}${prompt.length > 50 ? "..." : ""}`,
       description: "An unexpected error occurred during course generation.",

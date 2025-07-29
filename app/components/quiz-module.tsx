@@ -189,7 +189,24 @@ export function QuizModule({ course }: QuizModuleProps) {
             <Button onClick={restartQuiz} variant="outline">
               Retake Quiz
             </Button>
-            {passed && <Button>Continue to Certificate</Button>}
+            {passed && (
+              <Button onClick={() => {
+                // Mark course as completed when quiz is passed
+                if (typeof window !== 'undefined') {
+                  const savedCourses = localStorage.getItem('courses')
+                  if (savedCourses) {
+                    const courses = JSON.parse(savedCourses)
+                    const updatedCourses = courses.map((c: any) => 
+                      c.id === course.id ? { ...c, completed: true, progress: 100 } : c
+                    )
+                    localStorage.setItem('courses', JSON.stringify(updatedCourses))
+                    window.location.reload() // Refresh to update the UI
+                  }
+                }
+              }}>
+                Complete Course & Get Certificate
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>

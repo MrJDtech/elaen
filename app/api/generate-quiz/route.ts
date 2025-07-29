@@ -69,7 +69,26 @@ Questions should be challenging but fair, testing both knowledge and application
       return Response.json(fallbackQuiz)
     }
 
-    const quizData = JSON.parse(text)
+    // Clean the response text to extract valid JSON
+    let cleanText = text.trim()
+    
+    // Remove code block markers if present
+    if (cleanText.startsWith('```json')) {
+      cleanText = cleanText.replace(/^```json\s*/, '').replace(/\s*```$/, '')
+    }
+    if (cleanText.startsWith('```')) {
+      cleanText = cleanText.replace(/^```\s*/, '').replace(/\s*```$/, '')
+    }
+    
+    // Try to find JSON object in the response
+    const jsonStart = cleanText.indexOf('{')
+    const jsonEnd = cleanText.lastIndexOf('}')
+    
+    if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+      cleanText = cleanText.substring(jsonStart, jsonEnd + 1)
+    }
+
+    const quizData = JSON.parse(cleanText)
 
     return Response.json(quizData)
   } catch (error) {

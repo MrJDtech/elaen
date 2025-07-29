@@ -170,7 +170,10 @@ export function Dashboard() {
   const DashboardView = () => (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Welcome back, {user?.name || "Guest"}!</h1>
+        <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold">Welcome back, {user?.name || "Guest"}!</h1>
+              
+        </div>
         <p className="text-muted-foreground">
           Continue your learning journey
           <Badge variant="outline" className="ml-2">

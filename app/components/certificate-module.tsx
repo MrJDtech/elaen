@@ -29,8 +29,86 @@ export function CertificateModule({ course }: CertificateModuleProps) {
   })
 
   const handleDownload = () => {
-    // In a real app, this would generate and download a PDF certificate
-    alert("Certificate download functionality would be implemented here")
+    // Create a printable certificate HTML
+    const certificateHTML = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Certificate - ${course.title}</title>
+        <style>
+          body { font-family: 'Times New Roman', serif; margin: 0; padding: 40px; background: white; }
+          .certificate { max-width: 800px; margin: 0 auto; padding: 60px; border: 8px double #4f46e5; text-align: center; }
+          .header { margin-bottom: 30px; }
+          .title { font-size: 48px; color: #4f46e5; margin-bottom: 10px; font-weight: bold; }
+          .subtitle { font-size: 18px; color: #666; }
+          .recipient { margin: 40px 0; }
+          .student-name { font-size: 36px; color: #4f46e5; font-weight: bold; margin: 20px 0; }
+          .course-title { font-size: 24px; margin: 20px 0; font-weight: bold; }
+          .details { margin: 40px 0; display: flex; justify-content: space-between; text-align: left; }
+          .topics { flex: 1; margin-right: 40px; }
+          .completion-info { flex: 1; text-align: center; }
+          .topics h4 { margin-bottom: 10px; }
+          .topic-badge { display: inline-block; background: #f3f4f6; padding: 4px 8px; margin: 2px; border-radius: 4px; font-size: 12px; }
+          .signature-section { margin-top: 60px; display: flex; justify-content: space-between; }
+          .signature { border-bottom: 2px solid #4f46e5; width: 200px; padding-bottom: 5px; text-align: center; }
+          .cert-id { margin-top: 30px; font-size: 12px; color: #666; }
+          @media print { body { margin: 0; } }
+        </style>
+      </head>
+      <body>
+        <div class="certificate">
+          <div class="header">
+            <h1 class="title">Certificate of Completion</h1>
+            <div class="subtitle">This is to certify that</div>
+          </div>
+          
+          <div class="recipient">
+            <div class="student-name">Student Name</div>
+            <div class="subtitle">has successfully completed the course</div>
+            <div class="course-title">${course.title}</div>
+          </div>
+          
+          <div class="details">
+            <div class="topics">
+              <h4>Topics Covered:</h4>
+              ${course.topics.map(topic => `<span class="topic-badge">${topic}</span>`).join('')}
+            </div>
+            <div class="completion-info">
+              <div style="font-size: 60px; margin-bottom: 10px;">${course.icon}</div>
+              <div><strong>Completed on</strong></div>
+              <div>${currentDate}</div>
+            </div>
+          </div>
+          
+          <div class="signature-section">
+            <div>
+              <div class="signature">EduLearn Pro</div>
+              <div style="margin-top: 10px; font-size: 14px;">Learning Platform</div>
+            </div>
+            <div>
+              <div class="signature">Certificate Issued</div>
+              <div style="margin-top: 10px; font-size: 14px;">Official Verification</div>
+            </div>
+          </div>
+          
+          <div class="cert-id">
+            Certificate ID: ${course.id.slice(0, 8)}-${Date.now()}
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+    
+    // Create and download the certificate
+    const blob = new Blob([certificateHTML], { type: 'text/html' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${course.title.replace(/[^a-zA-Z0-9]/g, '_')}_Certificate.html`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
   }
 
   const handleShare = () => {
