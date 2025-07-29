@@ -29,72 +29,275 @@ export function CertificateModule({ course }: CertificateModuleProps) {
   })
 
   const handleDownload = () => {
-    // Create a printable certificate HTML
+    // Create a comprehensive certificate HTML that can be printed as PDF
     const certificateHTML = `
       <!DOCTYPE html>
       <html>
       <head>
         <title>Certificate - ${course.title}</title>
+        <meta charset="UTF-8">
         <style>
-          body { font-family: 'Times New Roman', serif; margin: 0; padding: 40px; background: white; }
-          .certificate { max-width: 800px; margin: 0 auto; padding: 60px; border: 8px double #4f46e5; text-align: center; }
-          .header { margin-bottom: 30px; }
-          .title { font-size: 48px; color: #4f46e5; margin-bottom: 10px; font-weight: bold; }
-          .subtitle { font-size: 18px; color: #666; }
-          .recipient { margin: 40px 0; }
-          .student-name { font-size: 36px; color: #4f46e5; font-weight: bold; margin: 20px 0; }
-          .course-title { font-size: 24px; margin: 20px 0; font-weight: bold; }
-          .details { margin: 40px 0; display: flex; justify-content: space-between; text-align: left; }
-          .topics { flex: 1; margin-right: 40px; }
-          .completion-info { flex: 1; text-align: center; }
-          .topics h4 { margin-bottom: 10px; }
-          .topic-badge { display: inline-block; background: #f3f4f6; padding: 4px 8px; margin: 2px; border-radius: 4px; font-size: 12px; }
-          .signature-section { margin-top: 60px; display: flex; justify-content: space-between; }
-          .signature { border-bottom: 2px solid #4f46e5; width: 200px; padding-bottom: 5px; text-align: center; }
-          .cert-id { margin-top: 30px; font-size: 12px; color: #666; }
-          @media print { body { margin: 0; } }
+          @page {
+            size: A4 landscape;
+            margin: 20mm;
+          }
+          * {
+            box-sizing: border-box;
+          }
+          body { 
+            font-family: 'Georgia', 'Times New Roman', serif; 
+            margin: 0; 
+            padding: 0; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .certificate { 
+            width: 100%;
+            max-width: 1000px; 
+            background: white;
+            padding: 60px; 
+            border: 12px solid #4f46e5; 
+            border-radius: 20px;
+            text-align: center; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+          }
+          .certificate::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23f8f9fa" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="%23f8f9fa" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+            pointer-events: none;
+          }
+          .content {
+            position: relative;
+            z-index: 1;
+          }
+          .header { 
+            margin-bottom: 40px; 
+            border-bottom: 3px solid #4f46e5;
+            padding-bottom: 20px;
+          }
+          .title { 
+            font-size: 56px; 
+            color: #4f46e5; 
+            margin-bottom: 15px; 
+            font-weight: bold; 
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            letter-spacing: 2px;
+          }
+          .subtitle { 
+            font-size: 22px; 
+            color: #666; 
+            font-style: italic;
+            margin-bottom: 10px;
+          }
+          .recipient { 
+            margin: 50px 0; 
+            padding: 30px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            border: 2px solid #4f46e5;
+          }
+          .student-name { 
+            font-size: 42px; 
+            color: #4f46e5; 
+            font-weight: bold; 
+            margin: 25px 0; 
+            text-decoration: underline;
+            text-decoration-color: #4f46e5;
+            text-underline-offset: 8px;
+          }
+          .course-title { 
+            font-size: 28px; 
+            margin: 25px 0; 
+            font-weight: bold; 
+            color: #2c3e50;
+            font-style: italic;
+          }
+          .details { 
+            margin: 50px 0; 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 40px; 
+            text-align: left; 
+          }
+          .topics { 
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #4f46e5;
+          }
+          .completion-info { 
+            text-align: center; 
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-right: 5px solid #4f46e5;
+          }
+          .topics h4 { 
+            margin-bottom: 15px; 
+            color: #4f46e5;
+            font-size: 18px;
+            border-bottom: 2px solid #4f46e5;
+            padding-bottom: 5px;
+          }
+          .topic-badge { 
+            display: inline-block; 
+            background: linear-gradient(45deg, #4f46e5, #667eea); 
+            color: white;
+            padding: 8px 12px; 
+            margin: 4px; 
+            border-radius: 8px; 
+            font-size: 14px; 
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+          .course-icon {
+            font-size: 80px; 
+            margin-bottom: 15px;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
+          }
+          .completion-date {
+            font-size: 18px;
+            color: #2c3e50;
+            font-weight: 600;
+          }
+          .signature-section { 
+            margin-top: 60px; 
+            display: grid; 
+            grid-template-columns: 1fr 1fr 1fr; 
+            gap: 40px;
+            border-top: 3px solid #4f46e5;
+            padding-top: 30px;
+          }
+          .signature { 
+            text-align: center;
+            padding: 20px;
+          }
+          .signature-line {
+            border-bottom: 3px solid #4f46e5; 
+            width: 100%; 
+            padding-bottom: 8px; 
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 16px;
+            color: #4f46e5;
+          }
+          .signature-title {
+            font-size: 14px;
+            color: #666;
+            font-style: italic;
+          }
+          .cert-id { 
+            margin-top: 40px; 
+            font-size: 14px; 
+            color: #666; 
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+          }
+          .qr-placeholder {
+            width: 80px;
+            height: 80px;
+            background: #f8f9fa;
+            border: 2px solid #4f46e5;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 10px;
+            color: #666;
+          }
+          @media print { 
+            body { 
+              margin: 0; 
+              background: white !important;
+            }
+            .certificate {
+              box-shadow: none;
+              border-radius: 0;
+            }
+          }
         </style>
       </head>
       <body>
         <div class="certificate">
-          <div class="header">
-            <h1 class="title">Certificate of Completion</h1>
-            <div class="subtitle">This is to certify that</div>
-          </div>
-          
-          <div class="recipient">
-            <div class="student-name">Student Name</div>
-            <div class="subtitle">has successfully completed the course</div>
-            <div class="course-title">${course.title}</div>
-          </div>
-          
-          <div class="details">
-            <div class="topics">
-              <h4>Topics Covered:</h4>
-              ${course.topics.map(topic => `<span class="topic-badge">${topic}</span>`).join('')}
+          <div class="content">
+            <div class="header">
+              <h1 class="title">CERTIFICATE OF COMPLETION</h1>
+              <div class="subtitle">Educational Achievement Award</div>
             </div>
-            <div class="completion-info">
-              <div style="font-size: 60px; margin-bottom: 10px;">${course.icon}</div>
-              <div><strong>Completed on</strong></div>
-              <div>${currentDate}</div>
+            
+            <div class="recipient">
+              <div class="subtitle">This is to certify that</div>
+              <div class="student-name">STUDENT NAME</div>
+              <div class="subtitle">has successfully completed the comprehensive course</div>
+              <div class="course-title">"${course.title}"</div>
+              <div class="subtitle">and has demonstrated mastery of all required competencies</div>
             </div>
-          </div>
-          
-          <div class="signature-section">
-            <div>
-              <div class="signature">EduLearn Pro</div>
-              <div style="margin-top: 10px; font-size: 14px;">Learning Platform</div>
+            
+            <div class="details">
+              <div class="topics">
+                <h4>📚 Course Topics Mastered</h4>
+                ${course.topics.map(topic => `<span class="topic-badge">${topic}</span>`).join('')}
+                <div style="margin-top: 15px; font-size: 14px; color: #666; font-style: italic;">
+                  ${course.topics.length} comprehensive modules completed
+                </div>
+              </div>
+              <div class="completion-info">
+                <div class="course-icon">${course.icon}</div>
+                <div class="completion-date">
+                  <strong>Completed on</strong><br>
+                  ${currentDate}
+                </div>
+                <div class="qr-placeholder">
+                  QR CODE
+                </div>
+                <div style="font-size: 12px; color: #666;">Scan for verification</div>
+              </div>
             </div>
-            <div>
-              <div class="signature">Certificate Issued</div>
-              <div style="margin-top: 10px; font-size: 14px;">Official Verification</div>
+            
+            <div class="signature-section">
+              <div class="signature">
+                <div class="signature-line">EduLearn Pro</div>
+                <div class="signature-title">Learning Platform</div>
+              </div>
+              <div class="signature">
+                <div class="signature-line">Academic Director</div>
+                <div class="signature-title">Course Certification</div>
+              </div>
+              <div class="signature">
+                <div class="signature-line">Date Issued</div>
+                <div class="signature-title">${currentDate}</div>
+              </div>
             </div>
-          </div>
-          
-          <div class="cert-id">
-            Certificate ID: ${course.id.slice(0, 8)}-${Date.now()}
+            
+            <div class="cert-id">
+              <strong>Certificate ID:</strong> ${course.id.slice(0, 8).toUpperCase()}-${Date.now()}<br>
+              <strong>Verification URL:</strong> edulearn.pro/verify/${course.id.slice(0, 8)}<br>
+              <small>This certificate can be independently verified through our online verification system</small>
+            </div>
           </div>
         </div>
+        
+        <script>
+          // Auto-print when opened
+          window.onload = function() {
+            setTimeout(function() {
+              window.print();
+            }, 500);
+          }
+        </script>
       </body>
       </html>
     `
@@ -109,6 +312,17 @@ export function CertificateModule({ course }: CertificateModuleProps) {
     link.click()
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
+    
+    // Also show success message
+    alert(`Certificate downloaded successfully! 
+    
+The HTML file will open in your browser and prompt you to print/save as PDF.
+    
+To save as PDF:
+1. Open the downloaded file in your browser
+2. Press Ctrl+P (or Cmd+P on Mac) 
+3. Choose "Save as PDF" as destination
+4. Click Save`)
   }
 
   const handleShare = () => {
@@ -202,7 +416,7 @@ export function CertificateModule({ course }: CertificateModuleProps) {
       <div className="flex justify-center gap-4">
         <Button onClick={handleDownload} className="flex items-center gap-2">
           <Download className="h-4 w-4" />
-          Download PDF
+          Download Certificate
         </Button>
         <Button variant="outline" onClick={handleShare} className="flex items-center gap-2 bg-transparent">
           <Share2 className="h-4 w-4" />
