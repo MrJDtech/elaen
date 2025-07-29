@@ -1,4 +1,3 @@
-
 "use client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -93,7 +92,7 @@ export function MessengerModule() {
 
   const loadFriends = () => {
     if (!user?.profile?.friends) return
-    
+
     const allUsers = JSON.parse(localStorage.getItem("all-users") || "[]")
     const userFriends = user.profile.friends.map((friendId: string) => {
       const friend = allUsers.find((u: any) => u.id === friendId)
@@ -105,7 +104,7 @@ export function MessengerModule() {
         lastSeen: new Date(Date.now() - Math.random() * 24 * 60 * 60 * 1000).toISOString()
       } : null
     }).filter(Boolean)
-    
+
     setFriends(userFriends)
   }
 
@@ -125,7 +124,7 @@ export function MessengerModule() {
 
   const addFriend = async (friendId: string) => {
     if (!user) return
-    
+
     const updatedUser = {
       ...user,
       profile: {
@@ -133,16 +132,16 @@ export function MessengerModule() {
         friends: [...(user.profile?.friends || []), friendId]
       }
     }
-    
+
     localStorage.setItem("local-user", JSON.stringify(updatedUser))
-    
+
     const allUsers = JSON.parse(localStorage.getItem("all-users") || "[]")
     const userIndex = allUsers.findIndex((u: any) => u.id === user.id)
     if (userIndex !== -1) {
       allUsers[userIndex] = updatedUser
       localStorage.setItem("all-users", JSON.stringify(allUsers))
     }
-    
+
     loadFriends()
   }
 
@@ -217,13 +216,13 @@ export function MessengerModule() {
 
   const loadMessages = () => {
     if (!user || !selectedFriend) return
-    
+
     const allMessages = JSON.parse(localStorage.getItem("messages") || "[]")
     const conversationMessages = allMessages.filter((msg: Message) => 
       (msg.senderId === user.id && msg.receiverId === selectedFriend.id) ||
       (msg.senderId === selectedFriend.id && msg.receiverId === user.id)
     )
-    
+
     setMessages(conversationMessages.sort((a, b) => 
       new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
     ))
@@ -231,7 +230,7 @@ export function MessengerModule() {
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !user || !selectedFriend) return
-    
+
     const message: Message = {
       id: `msg-${Date.now()}`,
       content: newMessage,
@@ -240,11 +239,11 @@ export function MessengerModule() {
       timestamp: new Date().toISOString(),
       senderName: user.name
     }
-    
+
     const allMessages = JSON.parse(localStorage.getItem("messages") || "[]")
     allMessages.push(message)
     localStorage.setItem("messages", JSON.stringify(allMessages))
-    
+
     setMessages(prev => [...prev, message])
     setNewMessage("")
   }
@@ -383,13 +382,20 @@ export function MessengerModule() {
                           <div className="h-2 w-2 bg-green-500 rounded-full"></div>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        {friend.online ? 'Online' : `Last seen ${formatTime(friend.lastSeen || '')}`}
-                      </p>
+                      <span className="text-sm text-muted-foreground">
+                        {friend.online ? (
+                          <span className="flex items-center gap-1">
+                            <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+                            Online
+                          </span>
+                        ) : (
+                          `Last seen ${formatTime(friend.lastSeen || '')}`
+                        )}
+                      </span>
                     </div>
                   </div>
                 ))}
-                
+
                 {/* Add new friends section */}
                 <div className="pt-4 border-t">
                   <h4 className="font-medium mb-3">Add Friends</h4>
@@ -447,7 +453,7 @@ export function MessengerModule() {
                       </p>
                     </div>
                   </div>
-                  
+
                   {/* Course Invite Button */}
                   <div className="flex gap-2">
                     <Button
@@ -510,7 +516,7 @@ export function MessengerModule() {
                     <div ref={messagesEndRef} />
                   </div>
                 </ScrollArea>
-                
+
                 <div className="flex gap-2">
                   <Input
                     placeholder="Type a message..."

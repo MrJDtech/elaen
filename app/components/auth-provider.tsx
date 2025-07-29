@@ -25,6 +25,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>
   signUp: (email: string, password: string, name: string) => Promise<void>
   signOut: () => Promise<void>
+  updateUser: (updatedUser: User) => void
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -117,5 +118,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(false)
   }
 
-  return <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>{children}</AuthContext.Provider>
+  const updateUser = (updatedUser: User) => {
+    setUser(updatedUser)
+    localStorage.setItem("local-user", JSON.stringify(updatedUser))
+  }
+
+  return <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut, updateUser }}>{children}</AuthContext.Provider>
 }
