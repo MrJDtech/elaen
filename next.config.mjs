@@ -9,6 +9,13 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  experimental: {
+    serverComponentsExternalPackages: [],
+  },
+  server: {
+    host: '0.0.0.0',
+    port: 3000,
+  },
 }
 
 export default nextConfig
