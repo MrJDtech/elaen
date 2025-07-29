@@ -27,6 +27,7 @@ import { CertificateModule } from "./certificate-module"
 import { CourseCreator } from "./course-creator"
 import { MessengerModule } from "./messenger-module"
 import { ProfileModule } from "./profile-module"
+import { AnalyticsModule } from "./analytics-module"
 
 interface Course {
   id: string
@@ -501,6 +502,8 @@ export function Dashboard() {
         return <MessengerModule />
       case "profile":
         return <ProfileModule />
+      case "analytics":
+        return <AnalyticsModule />
       case "certificates":
         return (
           <div className="space-y-6">

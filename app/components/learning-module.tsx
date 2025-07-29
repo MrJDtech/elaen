@@ -84,6 +84,27 @@ export function LearningModule({ course }: LearningModuleProps) {
   }, [currentTopic, course.title])
 
   const nextTopic = () => {
+    // Mark current topic as completed
+    const topicProgress = JSON.parse(localStorage.getItem("topic-progress") || "{}")
+    if (!topicProgress[course.id]) {
+      topicProgress[course.id] = {}
+    }
+    topicProgress[course.id][currentTopicIndex] = true
+    localStorage.setItem("topic-progress", JSON.stringify(topicProgress))
+
+    // Log learning activity
+    const activity = {
+      userId: course.user_id,
+      type: "topic_completed",
+      title: `Completed: ${currentTopic}`,
+      courseId: course.id,
+      topicIndex: currentTopicIndex,
+      date: new Date().toISOString()
+    }
+    const learningActivity = JSON.parse(localStorage.getItem("learning-activity") || "[]")
+    learningActivity.push(activity)
+    localStorage.setItem("learning-activity", JSON.stringify(learningActivity))
+
     if (currentTopicIndex < course.topics.length - 1) {
       setCurrentTopicIndex(currentTopicIndex + 1)
     }

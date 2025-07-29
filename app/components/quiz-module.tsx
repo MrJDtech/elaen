@@ -212,6 +212,18 @@ export function QuizModule({ course }: QuizModuleProps) {
                     )
                     localStorage.setItem('courses', JSON.stringify(updatedCourses))
                   }
+
+                  // Track course completion in analytics
+                  const activity = {
+                    userId: course.user_id,
+                    type: "course_completed",
+                    title: `Completed Course: ${course.title}`,
+                    courseId: course.id,
+                    date: new Date().toISOString()
+                  }
+                  const learningActivity = JSON.parse(localStorage.getItem("learning-activity") || "[]")
+                  learningActivity.push(activity)
+                  localStorage.setItem("learning-activity", JSON.stringify(learningActivity))
                   
                   // Reload the page to update the UI
                   window.location.reload()
