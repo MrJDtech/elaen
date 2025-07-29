@@ -1,5 +1,5 @@
 import { groq } from "@ai-sdk/groq"
-import { streamText, StreamingTextResponse } from "ai"
+import { streamText } from "ai"
 
 export async function POST(req: Request) {
   try {
@@ -39,7 +39,7 @@ Course: ${courseTitle}`,
         maxTokens: 1024, // Corresponds to max_completion_tokens
         topP: 1,
       })
-      return new StreamingTextResponse(result.toReadableStream())
+      return result.toDataStreamResponse()
     } catch (groqError: any) {
       console.error("Error calling Groq API for content generation:", groqError)
       return Response.json(
