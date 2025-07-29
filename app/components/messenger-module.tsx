@@ -59,7 +59,7 @@ export function MessengerModule() {
   const [courseInvitations, setCourseInvitations] = useState<CourseInvitation[]>([])
   const [studyGroups, setStudyGroups] = useState<StudyGroup[]>([])
   const [selectedCourseForInvite, setSelectedCourseForInvite] = useState<any>(null)
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -125,6 +125,11 @@ export function MessengerModule() {
   const addFriend = async (friendId: string) => {
     if (!user) return
 
+    // Check if already friends
+    if (user.profile?.friends?.includes(friendId)) {
+      return
+    }
+
     const updatedUser = {
       ...user,
       profile: {
@@ -133,8 +138,10 @@ export function MessengerModule() {
       }
     }
 
+    // Update current user in localStorage
     localStorage.setItem("local-user", JSON.stringify(updatedUser))
 
+    // Update in all-users array
     const allUsers = JSON.parse(localStorage.getItem("all-users") || "[]")
     const userIndex = allUsers.findIndex((u: any) => u.id === user.id)
     if (userIndex !== -1) {
@@ -142,7 +149,28 @@ export function MessengerModule() {
       localStorage.setItem("all-users", JSON.stringify(allUsers))
     }
 
+    // Also add this user as friend to the other person (mutual friendship)
+    const friendIndex = allUsers.findIndex((u: any) => u.id === friendId)
+    if (friendIndex !== -1) {
+      const friend = allUsers[friendIndex]
+      if (!friend.profile?.friends?.includes(user.id)) {
+        allUsers[friendIndex] = {
+          ...friend,
+          profile: {
+            ...friend.profile,
+            friends: [...(friend.profile?.friends || []), user.id]
+          }
+        }
+        localStorage.setItem("all-users", JSON.stringify(allUsers))
+      }
+    }
+
+    // Update the auth context
+    updateUser(updatedUser)
+
+    // Reload data
     loadFriends()
+    loadAllUsers()
   }
 
   const sendCourseInvitation = (courseId: string, courseName: string, toUserId: string) => {
@@ -254,10 +282,12 @@ export function MessengerModule() {
     return [...localCourses, ...savedCourses].filter((c: any) => c.user_id === user?.id)
   }
 
-  const filteredUsers = allUsers.filter(u => 
-    u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    u.email.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredUsers = allUsers.filter(u => {
+    const matchesSearch = u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         u.email.toLowerCase().includes(searchQuery.toLowerCase())
+    const isNotFriend = !user?.profile?.friends?.includes(u.id)
+    return matchesSearch && isNotFriend
+  })
 
   const filteredFriends = friends.filter(friend =>
     friend.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -398,28 +428,41 @@ export function MessengerModule() {
 
                 {/* Add new friends section */}
                 <div className="pt-4 border-t">
-                  <h4 className="font-medium mb-3">Add Friends</h4>
-                  {filteredUsers.slice(0, 3).map((potentialFriend) => (
-                    <div key={potentialFriend.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="text-xs">
-                          {potentialFriend.name.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">{potentialFriend.name}</p>
-                        <p className="text-xs text-muted-foreground">{potentialFriend.email}</p>
+                  <h4 className="font-medium mb-3">Add Friends ({filteredUsers.length} available)</h4>
+                  {filteredUsers.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No new users to add</p>
+                  ) : (
+                    filteredUsers.slice(0, 5).map((potentialFriend) => (
+                      <div key={potentialFriend.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted">
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback className="text-xs">
+                            {potentialFriend.name.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{potentialFriend.name}</p>
+                          <p className="text-xs text-muted-foreground">{potentialFriend.email}</p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => addFriend(potentialFriend.id)}
+                        >
+                          <UserPlus className="h-3 w-3" />
+                        </Button>
                       </div>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => addFriend(potentialFriend.id)}
-                        disabled={user?.profile?.friends?.includes(potentialFriend.id)}
-                      >
-                        <Plus className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  ))}
+                    ))
+                  )}
+                  {searchQuery && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="w-full mt-2"
+                      onClick={() => setSearchQuery("")}
+                    >
+                      Clear search
+                    </Button>
+                  )}
                 </div>
               </div>
             </ScrollArea>
