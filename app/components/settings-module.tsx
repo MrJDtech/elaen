@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -146,14 +145,14 @@ export function SettingsModule() {
   const saveSettings = () => {
     localStorage.setItem("app-settings", JSON.stringify(settings));
     setHasChanges(false);
-    
+
     // Apply some settings immediately
     if (settings.interface.sidebarCollapsed) {
       document.body.classList.add("sidebar-collapsed");
     } else {
       document.body.classList.remove("sidebar-collapsed");
     }
-    
+
     if (settings.learning.darkMode) {
       document.body.classList.add("dark");
     } else {
@@ -176,16 +175,16 @@ export function SettingsModule() {
       messages: JSON.parse(localStorage.getItem("messages") || "[]"),
       friends: JSON.parse(localStorage.getItem("friends") || "[]"),
     };
-    
+
     const dataStr = JSON.stringify(userData, null, 2);
     setExportData(dataStr);
-    
+
     // Create download link
     const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `v-learn-data-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `VLearn-data-${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -195,7 +194,7 @@ export function SettingsModule() {
   const importUserData = () => {
     try {
       const data = JSON.parse(importData);
-      
+
       if (data.user) localStorage.setItem("local-user", JSON.stringify(data.user));
       if (data.courses) localStorage.setItem("courses", JSON.stringify(data.courses));
       if (data.localCourses) localStorage.setItem("local-courses", JSON.stringify(data.localCourses));
@@ -206,7 +205,7 @@ export function SettingsModule() {
       }
       if (data.messages) localStorage.setItem("messages", JSON.stringify(data.messages));
       if (data.friends) localStorage.setItem("friends", JSON.stringify(data.friends));
-      
+
       setImportData("");
       alert("Data imported successfully! Please refresh the page to see changes.");
     } catch (error) {
@@ -356,9 +355,9 @@ export function SettingsModule() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <Separator />
-                
+
                 {Object.entries(settings.privacy).filter(([key]) => key !== 'profileVisibility').map(([key, value]) => (
                   <div key={key} className="flex items-center justify-between">
                     <div>
@@ -410,7 +409,7 @@ export function SettingsModule() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div>
                   <Label>Preferred Language</Label>
                   <Select 
@@ -428,9 +427,9 @@ export function SettingsModule() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <Separator />
-                
+
                 {Object.entries(settings.learning).filter(([key]) => !['defaultDifficulty', 'language'].includes(key)).map(([key, value]) => (
                   <div key={key} className="flex items-center justify-between">
                     <div>
@@ -463,7 +462,7 @@ export function SettingsModule() {
                   <Palette className="h-5 w-5" />
                   Interface Preferences
                 </CardTitle>
-                <CardDescription>Customize how V-Learn looks and feels</CardDescription>
+                <CardDescription>Customize how VLearn looks and feels</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {Object.entries(settings.interface).map(([key, value]) => (
@@ -603,10 +602,10 @@ export function SettingsModule() {
             Settings
           </h1>
           <p className="text-muted-foreground">
-            Customize your V-Learn experience and manage your data
+            Customize your VLearn experience and manage your data
           </p>
         </div>
-        
+
         <div className="flex gap-2">
           <Button
             variant="outline"
