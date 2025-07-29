@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Trophy, Download, Share2, Calendar } from "lucide-react"
+import { useAuth } from "./auth-provider"
 
 interface Course {
   id: string
@@ -22,6 +23,9 @@ interface CertificateModuleProps {
 }
 
 export function CertificateModule({ course }: CertificateModuleProps) {
+  const { user } = useAuth()
+  const studentName = user?.name || "Student"
+  
   const currentDate = new Date().toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -240,7 +244,7 @@ export function CertificateModule({ course }: CertificateModuleProps) {
 
             <div class="recipient">
               <div class="subtitle">This is to certify that</div>
-              <div class="student-name">STUDENT NAME</div>
+              <div class="student-name">${studentName.toUpperCase()}</div>
               <div class="subtitle">has successfully completed the comprehensive course</div>
               <div class="course-title">"${course.title}"</div>
               <div class="subtitle">and has demonstrated mastery of all required competencies</div>
@@ -370,7 +374,7 @@ Your certificate is now ready to share or print!`)
 
             <div className="mb-8">
               <p className="text-lg mb-4">This is to certify that</p>
-              <h2 className="text-3xl font-bold text-primary mb-4">Student Name</h2>
+              <h2 className="text-3xl font-bold text-primary mb-4">{studentName}</h2>
               <p className="text-lg mb-2">has successfully completed the course</p>
               <h3 className="text-2xl font-semibold mb-6">{course.title}</h3>
             </div>
