@@ -8,6 +8,15 @@ interface User {
   email: string
   name: string
   avatar_url?: string
+  profile?: {
+    bio?: string
+    joinDate: string
+    coursesCompleted: number
+    certificatesEarned: string[]
+    friends: string[]
+    skillLevel: string
+    preferredSubjects: string[]
+  }
 }
 
 interface AuthContextType {
@@ -45,25 +54,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true)
     await new Promise((resolve) => setTimeout(resolve, 500)) // Simulate network delay
 
-    // Simple mock authentication: check for a hardcoded user or any input
-    if (email === "test@example.com" && password === "password") {
-      const mockUser: User = {
-        id: "local-user-1",
-        email: email,
-        name: "Test User",
+    // Check if user exists in stored users
+    const storedUsers = JSON.parse(localStorage.getItem("all-users") || "[]")
+    const existingUser = storedUsers.find((u: User) => u.email === email)
+
+    if (existingUser) {
+      // Simple password check (in real app, use proper authentication)
+      if (password === "password" || email === "test@example.com") {
+        localStorage.setItem("local-user", JSON.stringify(existingUser))
+        setUser(existingUser)
+      } else {
+        throw new Error("Invalid credentials")
       }
-      localStorage.setItem("local-user", JSON.stringify(mockUser))
-      setUser(mockUser)
     } else {
-      // For any other input, treat it as a successful sign-in for demo purposes
-      // In a real app, you'd validate against stored users
-      const mockUser: User = {
-        id: `local-user-${Date.now()}`,
+      // Create new user profile
+      const newUser: User = {
+        id: `user-${Date.now()}`,
         email: email,
         name: email.split("@")[0] || "User",
+        profile: {
+          bio: "",
+          joinDate: new Date().toISOString(),
+          coursesCompleted: 0,
+          certificatesEarned: [],
+          friends: [],
+          skillLevel: "Beginner",
+          preferredSubjects: []
+        }
       }
-      localStorage.setItem("local-user", JSON.stringify(mockUser))
-      setUser(mockUser)
+      
+      // Store in users collection
+      const updatedUsers = [...storedUsers, newUser]
+      localStorage.setItem("all-users", JSON.stringify(updatedUsers))
+      localStorage.setItem("local-user", JSON.stringify(newUser))
+      setUser(newUser)
     }
     setLoading(false)
   }
@@ -72,12 +96,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true)
     await new Promise((resolve) => setTimeout(resolve, 500)) // Simulate network delay
 
-    // Create a new mock user and store in local storage
+    // Check if user already exists
+    const storedUsers = JSON.parse(localStorage.getItem("all-users") || "[]")
+    const existingUser = storedUsers.find((u: User) => u.email === email)
+    
+    if (existingUser) {
+      throw new Error("User already exists with this email")
+    }
+
+    // Create a new user with enhanced profile
     const newUser: User = {
-      id: `local-user-${Date.now()}`, // Unique ID for demo user
+      id: `user-${Date.now()}`,
       email: email,
       name: name,
+      profile: {
+        bio: "",
+        joinDate: new Date().toISOString(),
+        coursesCompleted: 0,
+        certificatesEarned: [],
+        friends: [],
+        skillLevel: "Beginner",
+        preferredSubjects: []
+      }
     }
+    
+    // Store in users collection
+    const updatedUsers = [...storedUsers, newUser]
+    localStorage.setItem("all-users", JSON.stringify(updatedUsers))
     localStorage.setItem("local-user", JSON.stringify(newUser))
     setUser(newUser)
     setLoading(false)

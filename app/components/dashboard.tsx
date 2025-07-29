@@ -25,7 +25,8 @@ import { LearningModule } from "./learning-module"
 import { QuizModule } from "./quiz-module"
 import { CertificateModule } from "./certificate-module"
 import { CourseCreator } from "./course-creator"
-import { MessengerModule } from "./messenger-module" // Keep for now, will update its content
+import { MessengerModule } from "./messenger-module"
+import { ProfileModule } from "./profile-module"
 
 interface Course {
   id: string
@@ -81,6 +82,7 @@ const sidebarItems = [
   { title: "My Courses", icon: BookOpen, id: "courses" },
   { title: "Create Course", icon: Plus, id: "create-course" },
   { title: "Messages", icon: MessageCircle, id: "messages" },
+  { title: "Profile", icon: User, id: "profile" },
   { title: "Certificates", icon: Trophy, id: "certificates" },
   { title: "Analytics", icon: BarChart3, id: "analytics" },
   { title: "Community", icon: Users, id: "community" },
@@ -191,10 +193,10 @@ export function Dashboard() {
         </div>
         <div className="text-muted-foreground">
           Continue your learning journey
-          <Badge variant="outline" className="ml-2">
-            Local Storage Mode
-          </Badge>
         </div>
+        <Badge variant="outline" className="ml-2">
+          Local Storage Mode
+        </Badge>
       </div>
 
       <Card className="border-blue-200 bg-blue-50">
@@ -494,7 +496,9 @@ export function Dashboard() {
       case "create-course":
         return <CourseCreator onCourseCreated={fetchCourses} />
       case "messages":
-        return <MessengerModule /> // This will be updated next
+        return <MessengerModule />
+      case "profile":
+        return <ProfileModule />
       case "certificates":
         return (
           <div className="space-y-6">

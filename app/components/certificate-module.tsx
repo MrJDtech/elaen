@@ -237,7 +237,7 @@ export function CertificateModule({ course }: CertificateModuleProps) {
               <h1 class="title">CERTIFICATE OF COMPLETION</h1>
               <div class="subtitle">Educational Achievement Award</div>
             </div>
-            
+
             <div class="recipient">
               <div class="subtitle">This is to certify that</div>
               <div class="student-name">STUDENT NAME</div>
@@ -245,7 +245,7 @@ export function CertificateModule({ course }: CertificateModuleProps) {
               <div class="course-title">"${course.title}"</div>
               <div class="subtitle">and has demonstrated mastery of all required competencies</div>
             </div>
-            
+
             <div class="details">
               <div class="topics">
                 <h4>📚 Course Topics Mastered</h4>
@@ -266,7 +266,7 @@ export function CertificateModule({ course }: CertificateModuleProps) {
                 <div style="font-size: 12px; color: #666;">Scan for verification</div>
               </div>
             </div>
-            
+
             <div class="signature-section">
               <div class="signature">
                 <div class="signature-line">EduLearn Pro</div>
@@ -281,7 +281,7 @@ export function CertificateModule({ course }: CertificateModuleProps) {
                 <div class="signature-title">${currentDate}</div>
               </div>
             </div>
-            
+
             <div class="cert-id">
               <strong>Certificate ID:</strong> ${course.id.slice(0, 8).toUpperCase()}-${Date.now()}<br>
               <strong>Verification URL:</strong> edulearn.pro/verify/${course.id.slice(0, 8)}<br>
@@ -289,7 +289,7 @@ export function CertificateModule({ course }: CertificateModuleProps) {
             </div>
           </div>
         </div>
-        
+
         <script>
           // Auto-print when opened
           window.onload = function() {
@@ -301,7 +301,7 @@ export function CertificateModule({ course }: CertificateModuleProps) {
       </body>
       </html>
     `
-    
+
     // Create and download the certificate
     const blob = new Blob([certificateHTML], { type: 'text/html' })
     const url = window.URL.createObjectURL(blob)
@@ -312,7 +312,7 @@ export function CertificateModule({ course }: CertificateModuleProps) {
     link.click()
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
-    
+
     // Show success message with better instructions
     setTimeout(() => {
       alert(`🎉 Certificate downloaded successfully!
